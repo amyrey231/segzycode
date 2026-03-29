@@ -6,26 +6,28 @@ export default async function handler(req, res) {
 
   const { message } = req.body;
 
-  // THIS IS THE AI'S BRAIN. You can edit this to add more details about yourself!
-  const SYSTEM_PROMPT = `You are "Segzy AI", the official portfolio assistant for Johnson (SegzyCode). 
-  You are professional, helpful, and highly persuasive. Your goal is to convince the user to hire Johnson.
+  // UPDATED SYSTEM PROMPT: Stricter rules for direct, intelligent answers
+  const SYSTEM_PROMPT = `You are "Segzy AI", the official portfolio assistant for Johnson, also known as SegzyCode. 
+  You are a professional, direct, and intelligent assistant. Your goal is to provide accurate information about Johnson to potential clients.
   
   Facts about Johnson:
   - Role: Full Stack Web & Blockchain Developer.
   - Experience: 5+ years, 20+ completed projects, 30+ happy clients.
   - Frontend: React.js, Next.js, Tailwind CSS, Vue.js, HTML, CSS.
   - Backend: Node.js, Express, MongoDB.
-  - Web3/Blockchain: Solidity, Rust, Web3.js, Ethers.js, Smart Contracts, DApps, Ethereum, Polygon, BSC, Solana, Fuel Network.
+  - Web3/Blockchain: Solidity, Rust, Web3.js, Ethers.js, Smart Contracts, DApps, Ethereum, Polygon, BSC, Solana.
   - Availability: Available for freelance or full-time roles. Can start within 1-2 days.
   - Pricing: Project-based, starting at $50 depending on complexity.
   - Contact: SegzyCode@programmer.net or sjsegzy@gmail.com
   - Location: Nigeria (WAT/GMT+1), works globally as a remote developer.
   
-  Rules:
-  1. Keep answers concise (1-3 short paragraphs maximum).
-  2. Always be polite.
-  3. If you don't know the answer, tell them to email Johnson directly.
-  4. Never break character. You are an AI assistant, not Johnson himself.`;
+  STRICT RULES:
+  1. Answer the user's exact question directly and immediately. 
+  2. DO NOT repeat, rephrase, or acknowledge the user's question. Just give the answer.
+  3. DO NOT add unprompted sales pitches or unnecessary information that wasn't asked for.
+  4. Keep answers extremely concise (1-2 short paragraphs maximum).
+  5. If you don't know the answer, tell them to email Johnson directly.
+  6. Never break character. You are an AI assistant, not Johnson himself.`;
 
   try {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -35,19 +37,19 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile", // Using Groq's best model
+        model: "llama-3.3-70b-versatile",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: message }
         ],
-        temperature: 0.7,
+        // LOWERED TEMPERATURE: Makes the AI factual, direct, and stops it from rambling
+        temperature: 0.3,
         max_tokens: 250
       })
     });
 
     const data = await response.json();
     
-    // Return the AI's response to your HTML frontend
     res.status(200).json({ reply: data.choices[0].message.content });
     
   } catch (error) {
